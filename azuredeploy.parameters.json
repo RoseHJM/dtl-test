@@ -1,0 +1,22 @@
+"parameters": {
+  "newVMName": {
+    "type": "string",
+    "defaultValue": "win11pro"
+  },
+  "labName": {
+    "type": "string",
+    "defaultValue": "dtl-Lab001"
+  },
+  "size": {
+    "type": "string",
+    "defaultValue": "Standard_A4m_v2"
+  },
+  "userName": {
+    "type": "string",
+    "defaultValue": "azureuser"
+  },
+  "password": {
+    "type": "string",
+    "defaultValue": "[[[VmPassword]]"
+  }
+}
