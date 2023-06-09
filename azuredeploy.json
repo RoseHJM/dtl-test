@@ -1,0 +1,106 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "newVMName": {
+      "type": "string",
+      "defaultValue": "vm001"
+    },
+    "labName": {
+      "type": "string",
+      "defaultValue": "dtl-Lab001"
+    },
+    "size": {
+      "type": "string",
+      "defaultValue": "Standard_DS1_v2"
+    },
+    "userName": {
+      "type": "string",
+      "defaultValue": "rosemalcolm"
+    },
+    "expirationDate": {
+      "type": "string",
+      "defaultValue": "2023-06-30T07:00:00.000Z"
+    },
+    "password": {
+      "type": "securestring"
+    },
+    "Visual_Studio_Code_(64-bit)_Architecture": {
+      "type": "string",
+      "defaultValue": "64-bit"
+    },
+    "Visual_Studio_Code_(64-bit)_DesktopIcon": {
+      "type": "bool",
+      "defaultValue": true
+    }
+  },
+  "variables": {
+    "labSubnetName": "default",
+    "labVirtualNetworkId": "[resourceId('Microsoft.DevTestLab/labs/virtualnetworks', parameters('labName'), variables('labVirtualNetworkName'))]",
+    "labVirtualNetworkName": "vn-network001",
+    "vmId": "[resourceId ('Microsoft.DevTestLab/labs/virtualmachines', parameters('labName'), parameters('newVMName'))]",
+    "vmName": "[concat(parameters('labName'), '/', parameters('newVMName'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2018-10-15-preview",
+      "type": "Microsoft.DevTestLab/labs/virtualmachines",
+      "name": "[variables('vmName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "labVirtualNetworkId": "[variables('labVirtualNetworkId')]",
+        "notes": "Windows 11 Enterprise (x64) (Microsoft Dev Box Compatible)",
+        "galleryImageReference": {
+          "offer": "windowsplustools",
+          "publisher": "microsoftvisualstudio",
+          "sku": "base-win11-gen2",
+          "osType": "Windows",
+          "version": "latest"
+        },
+        "size": "[parameters('size')]",
+        "userName": "[parameters('userName')]",
+        "password": "[parameters('password')]",
+        "isAuthenticationWithSshKey": false,
+        "artifacts": [
+          {
+            "artifactId": "[resourceId('Microsoft.DevTestLab/labs/artifactSources/artifacts', parameters('labName'), 'public repo', 'windows-vscode64')]",
+            "parameters": [
+              {
+                "name": "Architecture",
+                "value": "[parameters('Visual_Studio_Code_(64-bit)_Architecture')]"
+              },
+              {
+                "name": "DesktopIcon",
+                "value": "[parameters('Visual_Studio_Code_(64-bit)_DesktopIcon')]"
+              }
+            ]
+          },
+          {
+            "artifactId": "[resourceId('Microsoft.DevTestLab/labs/artifactSources/artifacts', parameters('labName'), 'public repo', 'windows-7zip')]"
+          }
+        ],
+        "labSubnetName": "[variables('labSubnetName')]",
+        "disallowPublicIpAddress": true,
+        "storageType": "Standard",
+        "allowClaim": true,
+        "expirationDate": "[parameters('expirationDate')]",
+        "networkInterface": {
+          "sharedPublicIpAddressConfiguration": {
+            "inboundNatRules": [
+              {
+                "transportProtocol": "tcp",
+                "backendPort": 3389
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "labVMId": {
+      "type": "string",
+      "value": "[variables('vmId')]"
+    }
+  }
+}
